@@ -1,0 +1,121 @@
+const AGE_OF_STUDENTS = [
+    25, 30, 18, 17, 50, 12, 43, 35, 40, 9,
+    33, 37, 41, 21, 20, 31, 35, 46, 10, 36,
+    28, 19, 18, 13, 28, 16, 42, 27, 28, 31,
+    40, 48, 40, 39, 32, 32, 26, 13, 3, 50,
+    26, 15, 14, 10, 38, 35, 34, 29, 30, 20
+]
+
+const result = [];
+/* Find the interval, Tally, Frequency, boundaries (in range), and less than
+cumulative frequency(<cf) from this given table */
+/* For tally, you must group 5 bars by replacing it with #### and put a dash or
+-
+example: ####-####-||
+The bars must be | not capital i but pipe
+(hold shift + backslash)*/
+
+/* I want you to return an object with array as the values for each properties..
+
+/* Example:
+const result = {
+    class_interval: [3-9, 10-16, ...],
+    tally: [III, ####-I, ...],
+    frequency: [3, 6, ...],
+    boundaries: [2.5-9.5, 9.5-16.5, ...],
+    l_cumulative_frequency: [2, 10, ...],
+}
+
+const result = [
+    {
+        class_interval: "3-9",
+        tally: "III",
+        frequency: 3,
+        boundaries: "2.5-9.5",
+        l_cumulative_frequency: 2
+    },
+    {
+        class_interval: "10-16",
+        tally: "####-I",
+        frequency: 6,
+        boundaries: "9.5-16.5",
+        l_cumulative_frequency: 10
+    },
+]
+*/
+
+
+/* Code */
+const MIN = Math.min.apply(null, AGE_OF_STUDENTS); // Lowest value in an array.
+const MAX = Math.max.apply(null, AGE_OF_STUDENTS); // Highest value in an array.
+
+const getRange = (highest, lowest) => highest - lowest; // R = HV - LV.
+const getClass = N => 1 + 3.3 * Math.log10(N);  // k = 1 + 3.3 * log(N)
+const getInterval = () => Math.round(
+    getRange(MAX, MIN) / getClass(AGE_OF_STUDENTS.length)  // i = R / k
+);
+
+const class_interval = [];
+const tally_points = [];
+const frequency = [];
+const class_boundary = [];
+const less_cumulative = [];
+
+// const initializeClass = () => `${MIN} - ${MIN + getInterval() - 1}`
+const calculateFdt = () => {
+    for (let i = MIN; i <= MAX; i += getInterval()){
+        const lower_bound = i;
+        const higher_bound = i + getInterval() - 1;
+        const setClassInterval = () => {
+            // result.push({ class_interval:`${lower_bound} - ${higher_bound}` });
+            class_interval.push(`${lower_bound} - ${higher_bound}`)
+        }
+        const tally = AGE_OF_STUDENTS.filter(age => (
+            age >= lower_bound && age <= higher_bound )
+        );
+        // const setFrequency = () => result.push({ frequency: tally.length })
+        const setFrequency = () => frequency.push(tally.length)
+        const parseTally = () => {
+            /* const total = (tally.length >= 5) ? tally.length / 5
+                : tally.length; */
+            const total = tally.length / 5;
+            const hash_instances = Math.floor(total);
+            const bars_instances = (
+                Math.round((total - hash_instances) * 10) / 10
+            ) * 5;
+            const HASHES_CHAR = "####-";
+            const BARS_CHAR = "|";
+            // console.log(hashes);
+            // console.log(bars);
+            let output = HASHES_CHAR.repeat(hash_instances)
+                + BARS_CHAR.repeat(bars_instances);
+            tally_points.push((output.endsWith('-')) ? output.slice(0, -1)
+                : output);
+        }
+        const setClassBoundaries = () => {
+            class_boundary.push(`${lower_bound - 0.5} - ${higher_bound - 0.5}`);
+        }
+        const setLessCumulative = () => {
+            less_cumulative.push(frequency.reduce((current_cumulative, item) => {
+                return current_cumulative + item;
+            }, 0))
+        }
+        // const getFinalOutput = () => result.reduce((acc, cur) => Object.assign({}, acc, cur))
+        setClassInterval();
+        parseTally();
+        setFrequency();
+        setClassBoundaries();
+        setLessCumulative();
+        // console.log(getFinalOutput());
+        // console.log(frequency)
+        // console.log(parseTally());
+    }
+}
+
+calculateFdt();
+// console.log(getInterval());
+console.log(class_interval);
+console.log(tally_points);
+console.log(frequency);
+console.log(class_boundary);
+console.log(less_cumulative);
